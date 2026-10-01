@@ -4,7 +4,7 @@ Udacity Reacher (20 agents). This DDPG baseline met the course's +30 rolling 100
 
 ![Three-seed Reacher learning curves](artifacts/learning_curves_comparison.png)
 
-See [Report.md](Report.md) for the per-seed results, metric definitions, method, and limitations. Raw logs, saved weights, plots, and evaluation JSON are in `artifacts/`.
+See [Report.md](Report.md) for the per-seed results, metric definitions, method, and limitations. Raw logs, saved weights, plots, and evaluation JSON are in `artifacts/`. A [24-second rendered Unity demo excerpt](artifacts/reacher_ddpg_demo.mov) shows the trained policy controlling the 20 Reacher arms.
 
 ## Verified environment
 
@@ -72,7 +72,7 @@ Each `episodes.jsonl` row distinguishes full episodes from truncated diagnostic 
 
 Evaluation runs Unity in fast simulation mode by default (`train_mode=True` in the legacy API). This flag controls simulation speed; the CLI separately disables action noise and optimizer updates. Pass `--realtime` for display-speed simulation.
 
-For a rendered deterministic rollout, use `.venv/bin/reacher-control demo --environment environments/Reacher.app --checkpoint artifacts/baseline-seed0/best_rolling_100.pt --output artifacts/demo_rollout.json --seed 20000 --worker-id 60`. A complete real Unity rollout was verified with mean score 39.0045 on that seed; `demo_rollout.json` records it separately from the formal evaluation. A shareable screen-recorded video is still pending.
+For a rendered deterministic rollout, use `.venv/bin/reacher-control demo --environment environments/Reacher.app --checkpoint artifacts/baseline-seed0/best_rolling_100.pt --output artifacts/demo_rollout.json --seed 20000 --worker-id 60`. A complete real Unity rollout was verified with mean score 39.0045 on that seed; `demo_rollout.json` records it separately from the formal evaluation. The manually recorded [demo video](artifacts/reacher_ddpg_demo.mov) is a 24-second excerpt of the rendered rollout, not a recording of all 1001 environment steps.
 
 The original Unity API reports only `local_done`. Our observed build emitted 20 simultaneous flags on step 1001. This baseline treats that specific fixed horizon as time-limit truncation and bootstraps from the pre-reset next observation. It stops with an error for earlier/asynchronous done events, because those would require a separate termination rule. This is an explicit assumption based on observed behavior, not an environment-provided termination label.
 

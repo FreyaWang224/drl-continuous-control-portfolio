@@ -50,7 +50,7 @@ The [combined learning curves](artifacts/learning_curves_comparison.png) show ea
 
 Before full training, end-to-end diagnostics in `artifacts/diagnostic-seed0/` and `artifacts/diagnostic-seed1/` confirmed checkpoint, logging, and gradient-update behavior. They are not included in the three-seed statistics.
 
-A later rendered, deterministic Unity rollout of the seed-0 selected checkpoint completed at environment seed 20000 with mean score 39.0045 (`artifacts/demo_rollout.json`). It is a separate one-episode demonstration and is not included in the ten-episode evaluation or cross-seed statistics. A shareable screen recording remains to be made.
+A later rendered, deterministic Unity rollout of the seed-0 selected checkpoint completed at environment seed 20000 with mean score 39.0045 (`artifacts/demo_rollout.json`). It is a separate one-episode demonstration and is not included in the ten-episode evaluation or cross-seed statistics. The [24-second Unity screen recording](artifacts/reacher_ddpg_demo.mov) is an excerpt of the demonstration; the JSON records the full 1001-step rollout.
 
 ## Limitations and next work
 
