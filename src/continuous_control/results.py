@@ -6,6 +6,36 @@ from pathlib import Path
 import numpy as np
 
 
+def plot_comparison(run_paths, output):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    colors = ['#4b6fb2', '#7253a4', '#3f8b67']
+    for index, path in enumerate(map(Path, run_paths)):
+        rows = [json.loads(line) for line in (path / 'episodes.jsonl').read_text().splitlines()]
+        seed = json.loads((path / 'summary.json').read_text())['seed']
+        color = colors[index % len(colors)]
+        x = [row['episode'] for row in rows]
+        ax.plot(x, [row['mean_score'] for row in rows], color=color, alpha=0.17, linewidth=0.8)
+        rolling = [row for row in rows if row['rolling_100'] is not None]
+        ax.plot([row['episode'] for row in rolling],
+                [row['rolling_100'] for row in rolling],
+                color=color, linewidth=2, label=f'Seed {seed}: rolling 100')
+    ax.axhline(30, color='#b84d5d', linestyle='--', linewidth=1.3,
+               label='Udacity threshold')
+    ax.set(xlabel='Training episode', ylabel='20-arm mean undiscounted score',
+           title='DDPG Reacher: independent training seeds')
+    ax.grid(alpha=0.2)
+    ax.legend()
+    fig.tight_layout()
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output, dpi=150)
+    plt.close(fig)
+
+
 def aggregate(run_paths):
     runs = []
     reference_config = None
@@ -56,10 +86,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', type=Path, action='append', required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--plot', type=Path)
     args = parser.parse_args()
     result = aggregate(args.run)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + '\n')
+    if args.plot:
+        plot_comparison(args.run, args.plot)
     print(json.dumps(result, indent=2))
 
 

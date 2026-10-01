@@ -1,0 +1,13 @@
+{
+  "mode": "training",
+  "seed": 0,
+  "episodes_run": 1,
+  "complete_episodes": 1,
+  "first_solved_window_end": null,
+  "first_solved_window_start": null,
+  "best_rolling_100": null,
+  "elapsed_seconds": 8.142648834,
+  "environment_steps": 1001,
+  "transitions": 20020,
+  "updates": 2
+}

@@ -1,10 +1,14 @@
 # Continuous Control — DDPG Portfolio
 
-Udacity Reacher (20 agents). A functional DDPG baseline is implemented. Short real-environment diagnostics have run; no solution or portfolio performance claim yet.
+Udacity Reacher (20 agents). This DDPG baseline met the course's +30 rolling 100-episode training criterion in three independent runs. The first qualifying window ended at episodes **111, 138, and 120**. Separately evaluated deterministic policies scored **37.838 ± 0.713** across training seeds (mean ± population SD of three run means; not a confidence interval or significance claim).
+
+![Three-seed Reacher learning curves](artifacts/learning_curves_comparison.png)
+
+See [Report.md](Report.md) for the per-seed results, metric definitions, method, and limitations. Raw logs, saved weights, plots, and evaluation JSON are in `artifacts/`.
 
 ## Verified environment
 
-On 2026-10-01, the official Mac build ran with ARM Python 3.9.6 on macOS 26.6.2. The executable is x86_64 (Rosetta available), Unity 2017.3.1f1 (fc1d3344e6ea). Each of 20 agents receives 33 observations and accepts 4 continuous actions in [-1,1]. Agents share a future learner; they are not independent training seeds.
+On 2026-10-01, the official Mac build ran with ARM Python 3.9.6 on macOS 26.6.2. The executable is x86_64 (Rosetta available), Unity 2017.3.1f1 (fc1d3344e6ea). Each of 20 agents receives 33 observations and accepts 4 continuous actions in [-1,1]. Agents share one learner; they are not independent training seeds.
 
 ## Setup (tested Mac configuration)
 
@@ -56,15 +60,19 @@ Legacy `local_done` does not distinguish termination from truncation. Replay ret
 ## Train and evaluate
 
 ```sh
-.venv/bin/reacher-control train --environment environments/Reacher.app --output artifacts/baseline-seed0 --seed 0 --worker-id 40 --episodes 500
+.venv/bin/reacher-control train --environment environments/Reacher.app --output artifacts/baseline-seed0 --seed 0 --worker-id 40 --episodes 300
 .venv/bin/reacher-control evaluate --environment environments/Reacher.app --checkpoint artifacts/baseline-seed0/best_rolling_100.pt --output artifacts/baseline-seed0/evaluation.json --seed 10000 --worker-id 41 --episodes 10
 ```
 
 `train` uses one shared policy for all 20 arms. Defaults: 1001 environment steps per full episode, 1000 random-action warmup steps, batch 128, replay capacity 1,000,000 transitions, one gradient update per environment step after warmup, Gaussian action noise standard deviation 0.2, discount 0.99, soft-update rate 0.001, Actor/Critic learning rates 0.0001/0.001. These are baseline choices, not tuned results. `best_rolling_100.pt` exists only after 100 complete episodes. `last.pt` is saved at the requested interval and at normal completion. The checkpoint stores optimizer and RNG state, but replay is not serialized, so the CLI does not claim exact training resume.
 
-After separate training and evaluation runs for multiple seeds, `reacher-results --run artifacts/baseline-seed0 --run artifacts/baseline-seed1 --run artifacts/baseline-seed2 --output artifacts/aggregate.json` checks that configurations match, keeps unsolved/missing-evaluation runs visible, and computes population SD across independent run means. It does not turn 20 arms or multiple episodes from one run into independent training seeds.
+After separate training and evaluation runs for multiple seeds, `reacher-results --run artifacts/baseline-seed0 --run artifacts/baseline-seed1 --run artifacts/baseline-seed2 --output artifacts/aggregate.json --plot artifacts/learning_curves_comparison.png` checks that configurations match, keeps unsolved/missing-evaluation runs visible, and computes population SD across independent run means. It does not turn 20 arms or multiple episodes from one run into independent training seeds.
 
 Each `episodes.jsonl` row distinguishes full episodes from truncated diagnostic runs and includes each arm score, their mean, rolling 100 mean only when the last 100 episodes are complete, environment steps, transitions, optimizer updates and observed elapsed time. `summary.json` records the first qualifying 100-episode window's start and end if reached; `training_curve.png` plots real logged values. Evaluation reloads a checkpoint, disables exploration and optimizer updates, and writes separate per-episode and per-arm scores plus across-episode population SD. That SD is not across independently trained seeds.
+
+Evaluation runs Unity in fast simulation mode by default (`train_mode=True` in the legacy API). This flag controls simulation speed; the CLI separately disables action noise and optimizer updates. Pass `--realtime` for display-speed simulation.
+
+For a rendered deterministic rollout, use `.venv/bin/reacher-control demo --environment environments/Reacher.app --checkpoint artifacts/baseline-seed0/best_rolling_100.pt --output artifacts/demo_rollout.json --seed 20000 --worker-id 60`. A complete real Unity rollout was verified with mean score 39.0045 on that seed; `demo_rollout.json` records it separately from the formal evaluation. A shareable screen-recorded video is still pending.
 
 The original Unity API reports only `local_done`. Our observed build emitted 20 simultaneous flags on step 1001. This baseline treats that specific fixed horizon as time-limit truncation and bootstraps from the pre-reset next observation. It stops with an error for earlier/asynchronous done events, because those would require a separate termination rule. This is an explicit assumption based on observed behavior, not an environment-provided termination label.
 
@@ -76,6 +84,6 @@ The original Unity API reports only `local_done`. Our observed build emitted 20 
 
 ## Scoring plan
 
-For each training episode, sum undiscounted rewards per arm, then average the 20 arms. The course threshold is a mean >=30 across 100 complete consecutive episode averages. Record the first qualifying window's endpoint and start. Keep independent frozen-policy evaluation (no exploration), best episode and variation across independently trained seeds separate. No experiments have been run yet.
+For each training episode, sum undiscounted rewards per arm, then average the 20 arms. The course threshold is a mean >=30 across 100 complete consecutive episode averages. The three observed first qualifying windows ended at 111, 138, and 120. Independent frozen-policy evaluation, best episode, and variation across independently trained seeds are reported separately in `Report.md`.
 
 [Official project](https://github.com/udacity/deep-reinforcement-learning/tree/master/p2_continuous-control)

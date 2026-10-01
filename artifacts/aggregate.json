@@ -1,0 +1,39 @@
+{
+  "training_seed_count": 3,
+  "runs": [
+    {
+      "seed": 0,
+      "path": "artifacts/baseline-seed0",
+      "complete_episodes": 300,
+      "first_solved_window_end": 111,
+      "best_rolling_100": 38.21909914573655,
+      "evaluation_mean_score": 38.59514913733118,
+      "evaluation_episode_population_sd": 0.22740316661885754
+    },
+    {
+      "seed": 1,
+      "path": "artifacts/baseline-seed1",
+      "complete_episodes": 300,
+      "first_solved_window_end": 138,
+      "best_rolling_100": 38.062189149243764,
+      "evaluation_mean_score": 36.88199917562306,
+      "evaluation_episode_population_sd": 0.3937770220166009
+    },
+    {
+      "seed": 2,
+      "path": "artifacts/baseline-seed2",
+      "complete_episodes": 300,
+      "first_solved_window_end": 120,
+      "best_rolling_100": 38.327639143310485,
+      "evaluation_mean_score": 38.03779914978891,
+      "evaluation_episode_population_sd": 0.40348841708547534
+    }
+  ],
+  "all_runs_solved": true,
+  "all_runs_evaluated": true,
+  "solved_episode_mean": 123.0,
+  "solved_episode_population_sd": 11.224972160321824,
+  "evaluation_mean_across_seeds": 37.83831582091438,
+  "evaluation_population_sd_across_seeds": 0.713473146749654,
+  "uncertainty_note": "Population SD across independent training seeds; not a confidence interval or significance test."
+}

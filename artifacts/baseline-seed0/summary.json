@@ -1,0 +1,15 @@
+{
+  "mode": "training",
+  "seed": 0,
+  "episodes_run": 300,
+  "complete_episodes": 300,
+  "first_solved_window_end": 111,
+  "first_solved_window_start": 12,
+  "best_rolling_100": 38.21909914573655,
+  "elapsed_seconds": 1956.315894459,
+  "environment_steps": 300300,
+  "transitions": 6006000,
+  "updates": 299301,
+  "best_single_episode": 140,
+  "best_single_episode_mean_score": 39.2119991235435
+}

@@ -1,0 +1,9 @@
+{
+  "mode": "rendered deterministic demo",
+  "checkpoint": "artifacts/baseline-seed0/best_rolling_100.pt",
+  "seed": 20000,
+  "steps": 1001,
+  "complete_episode": true,
+  "mean_reward_so_far": 39.004499128181486,
+  "score_note": "full evaluation score only if complete_episode is true"
+}

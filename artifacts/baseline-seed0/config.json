@@ -1,0 +1,18 @@
+{
+  "agent": {
+    "seed": 0,
+    "gamma": 0.99,
+    "tau": 0.001,
+    "actor_lr": 0.0001,
+    "critic_lr": 0.001,
+    "noise_std": 0.2,
+    "device": "cpu"
+  },
+  "episodes": 300,
+  "max_steps": 1001,
+  "warmup_steps": 1000,
+  "batch_size": 128,
+  "capacity": 1000000,
+  "update_every": 1,
+  "bootstrap_policy": "observed synchronous 1001-step legacy_done treated as time-limit truncation"
+}

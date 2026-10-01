@@ -1,0 +1,38 @@
+{
+  "mode": "independent deterministic evaluation",
+  "checkpoint": "artifacts/diagnostic-seed0/last.pt",
+  "environment_seed": 10000,
+  "exploration": false,
+  "optimizer_updates": 0,
+  "episodes": [
+    {
+      "episode": 1,
+      "mean_score": 0.0,
+      "arm_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "steps": 1001
+    }
+  ],
+  "mean_score": 0.0,
+  "episode_population_sd": 0.0
+}

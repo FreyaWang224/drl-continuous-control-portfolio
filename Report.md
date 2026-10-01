@@ -34,8 +34,24 @@ Training score is the 20-arm mean of undiscounted episode rewards while actions 
 
 ## Results
 
-Full baseline training is in progress. No solve claim is available yet. End-to-end diagnostics are recorded in `artifacts/diagnostic-seed0/` and `artifacts/diagnostic-seed1/` and should not be interpreted as trained-policy performance. The former ran one complete episode with only two updates and produced training mean 0.0795 and separate deterministic evaluation mean 0.0. The latter ran two complete episodes with 1,003 updates. These runs validate the pipeline and logging.
+Three independent training seeds each ran 300 complete episodes (300,300 Unity environment steps, 6,006,000 arm transitions, and 299,301 optimizer updates per seed). All three met Udacity's rolling 100-episode training criterion. For each run, the checkpoint for evaluation was selected by its highest rolling 100-episode **training** mean. Each selected checkpoint was evaluated for 10 complete episodes with a separate Unity seed, no action exploration, and no optimizer updates. Unity's fast simulation mode was enabled during evaluation; this controls execution speed separately from learning.
+
+| Training seed | First solved window (start–end) | Best rolling 100 training mean | Best single training episode | Independent evaluation mean ± episode SD¹ |
+|---|---:|---:|---:|---:|
+| 0 | 12–111 | 38.219 | 39.212 (episode 140) | 38.595 ± 0.227 |
+| 1 | 39–138 | 38.062 | 39.260 (episode 296) | 36.882 ± 0.394 |
+| 2 | 21–120 | 38.328 | 39.180 (episode 225) | 38.038 ± 0.403 |
+
+Across the **three independent training runs**, the first solved-window endpoint was **123.0 ± 11.2 episodes** and the independent evaluation mean was **37.838 ± 0.713**. Both ± values here are population SD across training seeds. ¹The SDs in the table's final column instead describe variation across the 10 evaluation episodes *within that seed*. Neither SD is a confidence interval, and these three runs do not support a claim of statistical significance.
+
+The first solved window uses its endpoint as the solved episode. The single best episode is not substituted for the rolling criterion. Training scores include exploratory actions; independent evaluation scores do not. Evaluation environment seeds were 10000, 10001, and 10002 for training seeds 0, 1, and 2 respectively.
+
+The [combined learning curves](artifacts/learning_curves_comparison.png) show each training seed's 20-arm episode mean (faint) and complete rolling 100-episode mean (solid), with the +30 threshold marked. The [aggregate JSON](artifacts/aggregate.json), per-seed `episodes.jsonl`, `summary.json`, `evaluation.json`, and checkpoints provide the underlying data. Each per-seed directory also includes a separate training curve and config. The raw logs were audited by recomputing every arm mean, rolling 100 value, first qualifying window, and best rolling value; all matched the summaries.
+
+Before full training, end-to-end diagnostics in `artifacts/diagnostic-seed0/` and `artifacts/diagnostic-seed1/` confirmed checkpoint, logging, and gradient-update behavior. They are not included in the three-seed statistics.
+
+A later rendered, deterministic Unity rollout of the seed-0 selected checkpoint completed at environment seed 20000 with mean score 39.0045 (`artifacts/demo_rollout.json`). It is a separate one-episode demonstration and is not included in the ten-episode evaluation or cross-seed statistics. A shareable screen recording remains to be made.
 
 ## Limitations and next work
 
-The time-limit interpretation of `legacy_done` is based on behavior observed on one build. A changed build or early done requires a new termination rule before training. The current learner uses one Critic and fixed Gaussian exploration; after a credible baseline, instability or value overestimation would motivate a controlled TD3 comparison, while weak exploration would motivate a focused noise comparison. Any enhancement should use comparable interaction budgets and independent training seeds.
+The time-limit interpretation of `legacy_done` is based on behavior observed on one build. A changed build or early done requires a new termination rule before training. The current learner uses one Critic and fixed Gaussian exploration. This baseline already solves the course task across all three tested seeds, so an extra algorithm is not needed to establish the result. A future TD3 or noise comparison would need a specific research question, comparable interaction budgets, and independently trained seeds. Three seeds characterize this small experiment but do not establish broad robustness across platforms or hyperparameters.

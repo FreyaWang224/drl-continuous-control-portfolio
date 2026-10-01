@@ -33,9 +33,11 @@ def load_checkpoint(path):
 
 def episode(env, agent, *, training, max_steps=HORIZON, replay=None,
             random_rng=None, warmup_steps=0, global_steps=0,
-            batch_size=64, update_every=1):
+            batch_size=64, update_every=1, unity_train_mode=True):
     """Collect one run. A short max_steps run is diagnostic, not a full episode."""
-    current = env.reset(training=training)
+    # Unity's train_mode controls simulation speed. Exploration and optimizer
+    # updates are controlled separately by the `training` flag here.
+    current = env.reset(training=unity_train_mode)
     scores = np.zeros(env.expected_agents, dtype=np.float64)
     losses = []
     completed = False
@@ -185,7 +187,8 @@ def evaluate(args):
     rows = []
     with ReacherEnvironment(args.environment, seed=args.seed, worker_id=args.worker_id) as env:
         for number in range(1, args.episodes + 1):
-            result = episode(env, agent, training=False)
+            result = episode(env, agent, training=False,
+                             unity_train_mode=not args.realtime)
             if not result['complete_episode']:
                 raise RuntimeError('evaluation did not complete a full episode')
             rows.append({'episode': number, 'mean_score': result['mean_score'],
@@ -194,11 +197,41 @@ def evaluate(args):
     report = {'mode': 'independent deterministic evaluation',
               'checkpoint': str(args.checkpoint), 'environment_seed': args.seed,
               'exploration': False, 'optimizer_updates': 0,
+              'unity_train_mode_fast_simulation': not args.realtime,
               'episodes': rows, 'mean_score': float(means.mean()),
               'episode_population_sd': float(means.std(ddof=0))}
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps(report, indent=2))
+
+
+def demo(args):
+    """Render a deterministic rollout for an external window recorder."""
+    if not 1 <= args.steps <= HORIZON or args.start_delay < 0:
+        raise ValueError('demo steps must be in [1,1001] and delay nonnegative')
+    agent = load_checkpoint(args.checkpoint)
+    scores = np.zeros(20, dtype=np.float64)
+    with ReacherEnvironment(args.environment, seed=args.seed,
+                            worker_id=args.worker_id, no_graphics=False) as env:
+        current = env.reset(training=False)
+        time.sleep(args.start_delay)
+        complete = False
+        for number in range(1, args.steps + 1):
+            result = env.step(agent.act(current.observations, explore=False))
+            scores += result.rewards
+            if result.legacy_done.any():
+                if number != HORIZON or not result.legacy_done.all():
+                    raise RuntimeError('unexpected done during demo')
+                complete = True
+                break
+            current = result
+    report = {'mode': 'rendered deterministic demo', 'checkpoint': str(args.checkpoint),
+              'seed': args.seed, 'steps': number, 'complete_episode': complete,
+              'mean_reward_so_far': float(scores.mean()),
+              'score_note': 'full evaluation score only if complete_episode is true'}
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report, indent=2))
 
 
@@ -229,14 +262,26 @@ def main():
     eval_parser.add_argument('--seed', type=int, default=10000)
     eval_parser.add_argument('--worker-id', type=int, default=1)
     eval_parser.add_argument('--episodes', type=int, default=10)
+    eval_parser.add_argument('--realtime', action='store_true',
+                             help='run Unity at display speed instead of fast simulation')
     plot_parser = sub.add_parser('plot')
     plot_parser.add_argument('--log', type=Path, required=True)
     plot_parser.add_argument('--output', type=Path, required=True)
+    demo_parser = sub.add_parser('demo')
+    demo_parser.add_argument('--environment', type=Path, required=True)
+    demo_parser.add_argument('--checkpoint', type=Path, required=True)
+    demo_parser.add_argument('--output', type=Path, required=True)
+    demo_parser.add_argument('--seed', type=int, default=20000)
+    demo_parser.add_argument('--worker-id', type=int, default=60)
+    demo_parser.add_argument('--steps', type=int, default=HORIZON)
+    demo_parser.add_argument('--start-delay', type=float, default=10)
     args = parser.parse_args()
     if args.command == 'train':
         train(args)
     elif args.command == 'evaluate':
         evaluate(args)
+    elif args.command == 'demo':
+        demo(args)
     else:
         plot_training(args.log, args.output)
 

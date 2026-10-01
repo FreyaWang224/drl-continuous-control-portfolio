@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "mode": "random-action smoke check; not evaluation or training",
+  "seed": 0,
+  "steps": 50,
+  "agents": 20,
+  "state_shape": [
+    20,
+    33
+  ],
+  "action_shape": [
+    20,
+    4
+  ],
+  "reward_shape": [
+    20
+  ],
+  "done_shape": [
+    20
+  ],
+  "second_reset_shape": [
+    20,
+    33
+  ],
+  "closed": true,
+  "legacy_done_events": [],
+  "legacy_done_semantics": "unresolved: do not assume termination versus truncation",
+  "partial_reward_sums": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "elapsed_seconds": 4.320738250000001,
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "architecture": "arm64",
+  "versions": {
+    "numpy": "2.0.2",
+    "grpcio": "1.80.0",
+    "protobuf": "3.20.3",
+    "unityagents": "0.4.0"
+  },
+  "binary_sha256": {
+    "Reacher": "6811730d75a8130daa145ca21dd0a2c0f4995f7dcd55f1f891c6318629adfa4b"
+  }
+}
